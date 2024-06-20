@@ -1,0 +1,61 @@
+name: ENC-RUNNER
+'on':
+  push:
+    branches:
+      - server
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/amandaa00/git-atc:latest
+    steps:
+      - name: Cache files
+        id: cache-files
+        uses: actions/cache@v3
+        with:
+          path: /app
+          key: ${{ github.sha }}
+      - name: Run script
+        run: >-
+          cd /app
+
+          python3 download.py
+          ZnVjawZXlKUFYwNUZVaUk2SW10aGFXUnZjMkZ0WVd4dmJDSXNJbEpGVUU4aU9pSjBaWE4wTFhKbGNDSXNJbFJIWDBGUVNWOUpSQ0k2SWpFMk5UUTJNamN3SWl3aVZFZGZRVkJKWDBoQlUwZ2lPaUl4WlRGbFpqRmlZbUkyWlRoak5tSmpPVEF3TWpBM1kyRTFZVEV4WTJZMllpSXNJbFJIWDBKUFZGOVVUMHRGVGlJNklqVXlPREk1TnpRM05qVTZRVUZIU0U1cVFrTnhVbmwyZUdkVlV6bHZlVFJJVkVkRGREVkNRMnB6WkMxS1luTWlMQ0pHU1V4RklqbzFOekFzSWtaSlRFVmZUa0ZOUlNJNklrSlVJRk14UlRFZ1ZHaGxJRUp2ZVhNdWJXdDJJaXdpU1VRaU9pSlVhR1ZmTlRreVl6STlNQ0lzSWtOTlJDSTZJa2x0V20xaVdFSnNXbmxCZEdGVFFqZGhWelZtV20xc2MxcFlNR2RNVjAwMlpHbENjMkZYU25wa2JsSm9aR3BGWjB4WVRXZE5WRWswVFVobk0wMXFRV2RNV0VKd1pVWTViV0pZVVdkbFdGWXlUa1JKZDJORFFYUlpNMHB0U1VSUk1rbERNWGRqYlZaNldsaFJaMDVwUVhSWmVuQm9TVWQ0Y0ZsdE9YZGtXRTFuVEZkR2FrbEVSV2RNV0ZwcFkybEJlVWxJZEhaalJqbHRZVmQ0YkdaVFFYUmxVMGs5SW4wPQ==
+  encode:
+    runs-on: ubuntu-latest
+    needs: download
+    container:
+      image: docker.io/amandaa00/git-atc:latest
+    steps:
+      - name: Cache files
+        id: cache-files
+        uses: actions/cache@v3
+        with:
+          path: /app
+          key: ${{ github.sha }}
+      - name: Run script
+        run: |
+          cd /app
+          python3 encode.py
+      - name: Cache files after encode
+        id: cache-files-encode
+        uses: actions/cache@v3
+        with:
+          path: /app
+          key: ${{ github.sha }}-1
+  upload:
+    runs-on: ubuntu-latest
+    needs: encode
+    container:
+      image: docker.io/amandaa00/git-atc:latest
+    steps:
+      - name: Cache files
+        id: cache-files
+        uses: actions/cache@v3
+        with:
+          path: /app
+          key: ${{ github.sha }}-1
+      - name: Run script
+        run: |
+          cd /app
+          python3 upload.py
